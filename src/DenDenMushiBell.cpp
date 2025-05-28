@@ -48,7 +48,7 @@ void setup()
   WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP
 
   mp3Serial.begin(9600);
-
+  Serial.begin(115200);
   Serial.println("Starting DenDenMushi Bell...");
 
   Serial.println("Setting up WiFi manager...");
@@ -76,7 +76,6 @@ void setup()
   }
   
   myDFPlayer.volume(30);  //Set volume value. From 0 to 30
-  myDFPlayer.play(1);  //Play the first mp3
 
   // After connection of WiFi, register to SIP server
   Serial.println("WiFi connected; starting SIP");
@@ -84,6 +83,9 @@ void setup()
   char WiFiIP[16];
   String ip = WiFi.localIP().toString();
   ip.toCharArray(WiFiIP, 16);
+
+  Serial.print("IP:");
+  Serial.println(ip);
 
   aSip.Init(SipIP, SipPORT, WiFiIP, SipPORT, SipUSER, SipPW, SipEXPIRES, 15);
   aSip.Subscribe(); // register to receive call notification
@@ -93,12 +95,8 @@ void setup()
 
 void loop()
 {
-  static unsigned long timer = millis();
-  
-  if (millis() - timer > 3000) {
-    timer = millis();
-    myDFPlayer.next();  //Play next mp3 every 3 second.
-  }
+  // SIP processing incoming packets
+  aSip.loop(acSipIn, sizeof(acSipIn)); // handels incoming calls and reregisters
 }
 
 /* -------------------------------------------------------------------------- 
