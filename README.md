@@ -42,7 +42,7 @@ Unfortunately, the case is glued firmly to the base, making it difficult to open
 
 ![DenDenMushi opened](images/DenDenMushi_open.jpeg)
 
-This allows the amplifier board to be removed, and wires can be soldered directly to the USB socket. The speaker cables can also be extended. All cables can then be routed through a gland to the front into the snail's head. The head is relatively easy to access by removing the battery compartment, which is glued to the base with just two adhesive points.
+This allows the amplifier board to be removed, and wires can be soldered directly to the USB socket, to power the whole thing via USB directly instead of relying on the batteries. The speaker cables can also be extended. All cables can then be routed through a gland to the front into the snail's head. The head is relatively easy to access by removing the battery compartment, which is glued to the base with just two adhesive points.
 
 ![Amplifier board](images/Powerboard.jpeg)
 ![Cables](images/Cables.jpeg)
