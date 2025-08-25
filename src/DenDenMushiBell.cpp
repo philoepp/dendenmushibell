@@ -38,6 +38,7 @@ char lastCallfrom[256];
 ---------------------------------------------------------------------------- */
 void callCallback(const char * from);
 void cancelCallback(const char * from);
+void initializeDFPlayer();
 
 /* -------------------------------------------------------------------------- 
 * FUNCTIONS
@@ -47,7 +48,6 @@ void setup()
 {
   WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP
 
-  mp3Serial.begin(9600);
   Serial.begin(115200);
   Serial.println("Starting DenDenMushi Bell...");
 
@@ -65,17 +65,6 @@ void setup()
       //if you get here you have connected to the WiFi    
       Serial.println("connected...yeey :)");
   }
-
-  // Initialize the DFplayer serial connection
-  if (!myDFPlayer.begin(mp3Serial, true, true)) 
-  {
-    while(true)
-    {
-      delay(0); // Code to compatible with ESP8266 watch dog.
-    }
-  }
-  
-  myDFPlayer.volume(30);  //Set volume value. From 0 to 30
 
   // After connection of WiFi, register to SIP server
   Serial.println("WiFi connected; starting SIP");
@@ -105,10 +94,22 @@ void loop()
 void callCallback(const char * from)
 {
   Serial.printf("Received a call from: %s\n", from);
+  initializeDFPlayer();   // DFPlayer re init before every play to prevent crashes
   myDFPlayer.play(1);  //Play the ringtone
 }
 
 void cancelCallback(const char * from)
 {
   Serial.printf("Call canceled from: %s\n", from);
+}
+
+void initializeDFPlayer() {
+  mp3Serial.begin(9600);
+  delay(50);  // Short wait for stable serial connection
+  if (!myDFPlayer.begin(mp3Serial, true, true)) {
+    Serial.println("DFPlayer init failed");
+  } else {
+    Serial.println("DFPlayer reinitialized");
+    myDFPlayer.volume(30);  // Lautstärke setzen
+  }
 }
