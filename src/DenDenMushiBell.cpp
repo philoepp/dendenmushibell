@@ -1,16 +1,12 @@
 #include "Arduino.h"
-#include "DFRobotDFPlayerMini.h"
 #include "ArduinoSIP.h"
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h> 
-#include <SoftwareSerial.h>
 
 
 /* -------------------------------------------------------------------------- 
 * DEFINES
 ---------------------------------------------------------------------------- */
-#define RX_PIN 12
-#define TX_PIN 13
 
 // SIP parameters
 const char *SipIP   = "192.168.178.1";  // IP of the FRITZ!Box
@@ -26,8 +22,6 @@ const char *AP_SSID = "DenDenMushi";    // SSID of the access point
 /* -------------------------------------------------------------------------- 
 Objects/variables
 ---------------------------------------------------------------------------- */
-SoftwareSerial mp3Serial(RX_PIN, TX_PIN);
-DFRobotDFPlayerMini myDFPlayer;
 char acSipIn[2048];
 char acSipOut[2048];
 Sip aSip(acSipOut, sizeof(acSipOut));
@@ -38,7 +32,7 @@ char lastCallfrom[256];
 ---------------------------------------------------------------------------- */
 void callCallback(const char * from);
 void cancelCallback(const char * from);
-void initializeDFPlayer();
+
 
 /* -------------------------------------------------------------------------- 
 * FUNCTIONS
@@ -94,22 +88,9 @@ void loop()
 void callCallback(const char * from)
 {
   Serial.printf("Received a call from: %s\n", from);
-  initializeDFPlayer();   // DFPlayer re init before every play to prevent crashes
-  myDFPlayer.play(1);  //Play the ringtone
 }
 
 void cancelCallback(const char * from)
 {
   Serial.printf("Call canceled from: %s\n", from);
-}
-
-void initializeDFPlayer() {
-  mp3Serial.begin(9600);
-  delay(50);  // Short wait for stable serial connection
-  if (!myDFPlayer.begin(mp3Serial, true, true)) {
-    Serial.println("DFPlayer init failed");
-  } else {
-    Serial.println("DFPlayer reinitialized");
-    myDFPlayer.volume(30);  // Lautstärke setzen
-  }
 }
