@@ -1,7 +1,11 @@
+#include <FS.h>
 #include "Arduino.h"
 #include "ArduinoSIP.h"
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h> 
+#include "AudioFileSourceSPIFFS.h"
+#include "AudioGeneratorMP3.h"
+#include "AudioOutputI2SNoDAC.h"
 
 
 /* -------------------------------------------------------------------------- 
@@ -19,6 +23,11 @@ const int SipEXPIRES   = 600;           // [s] Registration expires in 600s; ren
 // AP parameters
 const char *AP_SSID = "DenDenMushi";    // SSID of the access point
 
+// I2S pins are fixed on ESP8266
+// BCLK = GPIO15 (D8)
+// LRC = GPIO2 (D4)
+// DIN = GPIO3 (RX pin)
+
 /* -------------------------------------------------------------------------- 
 Objects/variables
 ---------------------------------------------------------------------------- */
@@ -32,7 +41,7 @@ char lastCallfrom[256];
 ---------------------------------------------------------------------------- */
 void callCallback(const char * from);
 void cancelCallback(const char * from);
-
+void playMp3File();
 
 /* -------------------------------------------------------------------------- 
 * FUNCTIONS
@@ -74,6 +83,9 @@ void setup()
   aSip.Subscribe(); // register to receive call notification
   aSip.setCallCallback(callCallback);
   aSip.setCancelCallback(cancelCallback);
+
+  // Setup filesystem
+  SPIFFS.begin();
 }
 
 void loop()
@@ -88,9 +100,27 @@ void loop()
 void callCallback(const char * from)
 {
   Serial.printf("Received a call from: %s\n", from);
+  playMp3File();
 }
 
 void cancelCallback(const char * from)
 {
   Serial.printf("Call canceled from: %s\n", from);
+}
+
+void playMp3File() 
+{
+  AudioFileSourceSPIFFS file("/ringtone.mp3");
+  AudioOutputI2S out;
+  AudioGeneratorMP3 mp3;
+
+  mp3.begin(&file, &out);
+
+  while (mp3.isRunning()) 
+  {
+    if (!mp3.loop()) 
+    {
+      mp3.stop();
+    }
+  }
 }
